@@ -24,6 +24,7 @@ pipeline {
                         sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Tetris \
                         -Dsonar.projectKey=Tetris '''
                     }
+ 
                 }
             }
         }
@@ -71,15 +72,15 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
-                        sh 'docker tag tetrisv1 avian19/tetrisv1:${BUILD_NUMBER}'
-                        sh 'docker push avian19/tetrisv1:${BUILD_NUMBER}'
+                        sh 'docker tag tetrisv1 vishwajeetkore/tetrisv1:${BUILD_NUMBER}'
+                        sh 'docker push vishwajeetkore/tetrisv1:${BUILD_NUMBER}'
                     }
                 }
             }
         }
         stage("TRIVY Image Scan") {
             steps {
-                sh 'trivy image avian19/tetrisv1:${BUILD_NUMBER} > trivyimage.txt'
+                sh 'trivy image vishwajeetkore/tetrisv1:${BUILD_NUMBER} > trivyimage.txt'
             }
         }
         stage('Checkout Code') {
@@ -90,14 +91,14 @@ pipeline {
         stage('Update Deployment file') {
             environment {
                 GIT_REPO_NAME = "End-to-End-Kubernetes-DevSecOps-Tetris-Project"
-                GIT_USER_NAME = "AmanPathak-DevOps"
+                GIT_USER_NAME = "vishwajeetkore"
             }
             steps {
                 dir('Manifest-file') {
                     withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                         sh '''
-                            git config user.email "aman07pathak@gmail.com"
-                            git config user.name "AmanPathak-DevOps"
+                            git config user.email "vishwkore@gmail.com"
+                            git config user.name "vishwajeetkore"
                             BUILD_NUMBER=${BUILD_NUMBER}
                             echo $BUILD_NUMBER
                             imageTag=$(grep -oP '(?<=tetrisv1:)[^ ]+' deployment-service.yml)
